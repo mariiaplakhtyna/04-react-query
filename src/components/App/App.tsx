@@ -1,57 +1,49 @@
-import { useState, type ComponentType } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import ReactPaginateImport, { type ReactPaginateProps } from 'react-paginate';
+import { useState } from 'react';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import ReactPaginate from 'react-paginate';
+import { Toaster, toast } from 'react-hot-toast';
+
 import { fetchMovies } from '../../services/movieService';
+import type { Movie } from '../../types/movie';
+import { SearchBar } from '../SearchBar/SearchBar';
+import { MovieGrid } from '../MovieGrid/MovieGrid';
+import { MovieModal } from '../MovieModal/MovieModal';
+import { Loader } from '../Loader/Loader';
+import { ErrorMessage } from '../ErrorMessage/ErrorMessage';
 import css from './App.module.css';
-
-const ReactPaginate =
-  (ReactPaginateImport as unknown as { default?: ComponentType<ReactPaginateProps> })
-    .default ??
-  (ReactPaginateImport as unknown as ComponentType<ReactPaginateProps>);
-
 
 export default function App() {
   const [query, setQuery] = useState('');
-  const [inputValue, setInputValue] = useState('');
   const [page, setPage] = useState(1);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isError, isFetching, isSuccess } = useQuery({
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: query !== '',
+    placeholderData: keepPreviousData,
   });
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    setQuery(inputValue);
+  const handleSearch = (newQuery: string) => {
+    setQuery(newQuery);
     setPage(1);
   };
 
+  if (isSuccess && data.results.length === 0) {
+    toast.error('No movies found');
+  }
+
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Search movies..."
-        />
+    <div className={css.app}>
+      <SearchBar onSubmit={handleSearch} />
 
-        <button type="submit">Search</button>
-      </form>
+      {isFetching && <Loader />}
 
-      {isLoading && <p>Loading...</p>}
+      {isError && <ErrorMessage />}
 
-      {isError && <p>Error!</p>}
-
-      <ul>
-        {data?.results.map((movie) => (
-          <li key={movie.id}>
-            {movie.title}
-          </li>
-        ))}
-      </ul>
+      {data && data.results.length > 0 && (
+        <MovieGrid movies={data.results} onSelect={setSelectedMovie} />
+      )}
 
       {data && data.total_pages > 1 && (
         <ReactPaginate
@@ -66,6 +58,15 @@ export default function App() {
           previousLabel="<"
         />
       )}
+
+      {selectedMovie && (
+        <MovieModal
+          movie={selectedMovie}
+          onClose={() => setSelectedMovie(null)}
+        />
+      )}
+
+      <Toaster position="top-right" />
     </div>
   );
 }

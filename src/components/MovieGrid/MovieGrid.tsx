@@ -6,19 +6,23 @@ interface MovieGridProps {
   onSelect: (movie: Movie) => void;
 }
 
-export default function MovieGrid({ movies, onSelect }: MovieGridProps) {
+export function MovieGrid({ movies, onSelect }: MovieGridProps) {
   return (
-    <ul className={css.grid}>
-      {movies.map(movie => (
-        <li key={movie.id} onClick={() => onSelect(movie)}>
-          <div className={css.card}>
+    <ul className={css.list}>
+      {movies.map((movie) => (
+        <li
+          className={css.item}
+          key={movie.id}
+          onClick={() => onSelect(movie)}
+        >
+          {movie.poster_path && (
             <img
               className={css.image}
-              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+              src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
               alt={movie.title}
             />
-            <h2 className={css.title}>{movie.title}</h2>
-          </div>
+          )}
+          <p>{movie.title}</p>
         </li>
       ))}
     </ul>

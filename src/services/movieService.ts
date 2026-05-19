@@ -1,29 +1,29 @@
 import axios from 'axios';
 import type { Movie } from '../types/movie';
+
 interface MoviesResponse {
   page: number;
   results: Movie[];
   total_pages: number;
 }
 
+const BASE_URL = 'https://api.themoviedb.org/3/search/movie';
+
 export async function fetchMovies(
   query: string,
   page: number
 ): Promise<MoviesResponse> {
-  const response = await axios.get<MoviesResponse>(
-    'https://api.themoviedb.org/3/search/movie',
-    {
-      params: {
-        query,
-        include_adult: false,
-        language: 'en-US',
-        page,
-      },
-      headers: {
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4ZGMyZDFhMTMxMmNkNmFlMTg1OTg2ZDM0N2NlY2FjNCIsIm5iZiI6MTc3ODU5MDc3OS4yNiwic3ViIjoiNmEwMzI0M2JjNTNiNzVmMDEwZTE1NmNlIiwic2NvcGVzIjpbImFwaV9yZWFkIl0sInZlcnNpb24iOjF9.u2YFxRZxgGzd6XNK-3CpaupOXxLJUQCQu3OftgMdApg `,
-      },
-    }
-  );
+  const response = await axios.get<MoviesResponse>(BASE_URL, {
+    params: {
+      query,
+      page,
+      include_adult: false,
+      language: 'en-US',
+    },
+    headers: {
+      Authorization: `Bearer ${import.meta.env.VITE_TMDB_TOKEN}`,
+    },
+  });
 
   return response.data;
 }
