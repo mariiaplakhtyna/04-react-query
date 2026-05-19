@@ -41,6 +41,9 @@ export default function MovieModal({
   return createPortal(
     <div className={css.backdrop} onClick={handleBackdropClick}>
       <div className={css.modal}>
+        <button type="button" onClick={onClose}>
+  Close
+</button>
         <img
           src={`https://image.tmdb.org/t/p/w500${movie.backdrop_path}`}
           alt={movie.title}
