@@ -7,9 +7,9 @@ import { fetchMovies } from '../../services/movieService';
 import type { Movie } from '../../types/movie';
 import { SearchBar } from '../SearchBar/SearchBar';
 import { MovieGrid } from '../MovieGrid/MovieGrid';
-import { MovieModal } from '../MovieModal/MovieModal';
+import MovieModal from '../MovieModal/MovieModal';
 import { Loader } from '../Loader/Loader';
-import { ErrorMessage } from '../ErrorMessage/ErrorMessage';
+import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import css from './App.module.css';
 
 export default function App() {
@@ -39,7 +39,7 @@ export default function App() {
 
       {isFetching && <Loader />}
 
-      {isError && <ErrorMessage />}
+      {isError && <ErrorMessage message="Something went wrong" />}
 
       {data && data.results.length > 0 && (
         <MovieGrid movies={data.results} onSelect={setSelectedMovie} />
